@@ -1,0 +1,20 @@
+{
+    "books": [
+        {
+            "id": "e8c2f288-17fe-406f-b0d6-a8ba4def2bd2",
+            "title": "Cien años de soledad",
+            "author_id": "02e5242d-558b-41ae-bc5b-ec002751f9aa",
+            "isbn": "",
+            "publication_year": 1967,
+            "genre": "Novela",
+            "description": "",
+            "pages": null,
+            "language": "Español",
+            "publisher": "",
+            "available": true,
+            "borrowed_by": null,
+            "borrow_date": null,
+            "due_date": null
+        }
+    ]
+}

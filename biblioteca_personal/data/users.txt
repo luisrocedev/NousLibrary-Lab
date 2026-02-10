@@ -1,0 +1,13 @@
+[
+  {
+    "id": "1",
+    "name": "Admin User",
+    "email": "admin@example.com",
+    "phone": "",
+    "address": "",
+    "registration_date": "2026-02-10T17:05:56.171549",
+    "active": true,
+    "borrowed_books": [],
+    "max_books": 5
+  }
+]

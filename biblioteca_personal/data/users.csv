@@ -1,0 +1,2 @@
+id,name,email,phone,address,registration_date,active,borrowed_books,max_books
+1,Admin User,admin@example.com,,,2026-02-10T17:05:56.171549,True,,5

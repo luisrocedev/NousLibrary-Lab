@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<library>
+  <users>
+    <user>
+      <id>1</id>
+      <name>Admin User</name>
+      <email>admin@example.com</email>
+      <phone/>
+      <address/>
+      <registration_date>2026-02-10T17:05:56.171549</registration_date>
+      <active>True</active>
+      <borrowed_books/>
+      <max_books>5</max_books>
+    </user>
+  </users>
+</library>

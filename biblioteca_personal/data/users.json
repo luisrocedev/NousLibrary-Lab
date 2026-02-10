@@ -1,0 +1,26 @@
+{
+    "users": [
+        {
+            "id": "c924903d-3a50-42d3-bd66-262169194b53",
+            "name": "Juan Pérez",
+            "email": "juan@example.com",
+            "phone": "123456789",
+            "address": "Calle Principal 123",
+            "registration_date": "2026-02-10T17:15:07.649897",
+            "active": true,
+            "borrowed_books": [],
+            "max_books": 5
+        },
+        {
+            "id": "ee6170d6-d396-4c38-8c81-35d681b97d00",
+            "name": "María García",
+            "email": "maria@example.com",
+            "phone": "987654321",
+            "address": "Avenida Central 456",
+            "registration_date": "2026-02-10T17:15:07.649905",
+            "active": true,
+            "borrowed_books": [],
+            "max_books": 5
+        }
+    ]
+}
