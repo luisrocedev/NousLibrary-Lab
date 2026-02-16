@@ -10,7 +10,7 @@
 
 ## 🚀 Descripción del Producto
 
-**Biblioteca Personal Multiformato** es una aplicación de escritorio completa desarrollada en Python que revoluciona la gestión de bibliotecas personales mediante el soporte nativo de **5 formatos de almacenamiento diferentes**. 
+**Biblioteca Personal Multiformato** es una aplicación de escritorio completa desarrollada en Python que revoluciona la gestión de bibliotecas personales mediante el soporte nativo de **5 formatos de almacenamiento diferentes**.
 
 La aplicación combina una arquitectura empresarial sólida con una interfaz moderna, proporcionando tanto una interfaz gráfica intuitiva como capacidades de línea de comandos para usuarios avanzados.
 
@@ -18,7 +18,7 @@ La aplicación combina una arquitectura empresarial sólida con una interfaz mod
 
 - 🔄 **Interoperabilidad total**: Cambia entre formatos sin perder datos
 - 🎯 **Arquitectura escalable**: Patrón Factory y Repository para extensibilidad
-- 🛡️ **Validación robusta**: Integridad de datos garantizada en todos los formatos  
+- 🛡️ **Validación robusta**: Integridad de datos garantizada en todos los formatos
 - 📊 **Análisis integrado**: Sistema de reporting y estadísticas incorporado
 - 🚀 **Rendimiento optimizado**: Gestión eficiente de memoria y operaciones I/O
 
@@ -26,18 +26,18 @@ La aplicación combina una arquitectura empresarial sólida con una interfaz mod
 
 ### Stack Tecnológico
 
-| Componente | Tecnología | Propósito |
-|------------|------------|-----------|
-| **Backend** | Python 3.8+ | Lógica de negocio y procesamiento de datos |
-| **GUI Framework** | tkinter + ttk | Interfaz gráfica nativa multiplataforma |
-| **Persistencia** | SQLite3, JSON, XML, CSV, TXT | Almacenamiento multi-formato |
-| **Logging** | Python logging + RotatingFileHandler | Auditoría y debugging |
-| **Testing** | unittest | Pruebas unitarias y de integración |
+| Componente        | Tecnología                           | Propósito                                  |
+| ----------------- | ------------------------------------ | ------------------------------------------ |
+| **Backend**       | Python 3.8+                          | Lógica de negocio y procesamiento de datos |
+| **GUI Framework** | tkinter + ttk                        | Interfaz gráfica nativa multiplataforma    |
+| **Persistencia**  | SQLite3, JSON, XML, CSV, TXT         | Almacenamiento multi-formato               |
+| **Logging**       | Python logging + RotatingFileHandler | Auditoría y debugging                      |
+| **Testing**       | unittest                             | Pruebas unitarias y de integración         |
 
 ### Patrones de Diseño Implementados
 
 - 🏭 **Factory Pattern**: Para la creación dinámica de gestores de datos
-- 📦 **Repository Pattern**: Abstracción de la capa de persistencia  
+- 📦 **Repository Pattern**: Abstracción de la capa de persistencia
 - 🔗 **Strategy Pattern**: Intercambio dinámico de algoritmos de almacenamiento
 - 🎯 **Singleton Pattern**: Configuración y logging centralizados
 - 📋 **Template Method**: Operaciones CRUD estandarizadas
@@ -54,13 +54,13 @@ La aplicación combina una arquitectura empresarial sólida con una interfaz mod
 
 ### 🔀 Formatos Soportados
 
-| Formato | Ext | Características | Uso Recomendado |
-|---------|-----|-----------------|----------------|
-| **SQLite** | `.db` | ACID, Relacional, SQL | Producción, integridad crítica |
-| **JSON** | `.json` | Estructurado, APIs | Intercambio de datos, APIs |
-| **XML** | `.xml` | Jerárquico, Schemas | Integración empresarial |
-| **CSV** | `.csv` | Tabular, Excel | Análisis de datos, reports |
-| **TXT** | `.txt` | Legible, Simple | Debugging, configuración |
+| Formato    | Ext     | Características       | Uso Recomendado                |
+| ---------- | ------- | --------------------- | ------------------------------ |
+| **SQLite** | `.db`   | ACID, Relacional, SQL | Producción, integridad crítica |
+| **JSON**   | `.json` | Estructurado, APIs    | Intercambio de datos, APIs     |
+| **XML**    | `.xml`  | Jerárquico, Schemas   | Integración empresarial        |
+| **CSV**    | `.csv`  | Tabular, Excel        | Análisis de datos, reports     |
+| **TXT**    | `.txt`  | Legible, Simple       | Debugging, configuración       |
 
 ## 🚀 Instalación y Configuración
 
@@ -90,7 +90,7 @@ python create_test_data.py
 
 # 5. Ejecutar aplicación
 python gui_app.py  # Interfaz gráfica
-# O 
+# O
 python main.py     # Interfaz de consola
 ```
 
@@ -116,6 +116,7 @@ python gui_app.py
 ```
 
 **Características de la GUI:**
+
 - 🎨 Interfaz moderna con ttk themes
 - 🔍 Búsqueda en tiempo real
 - 📊 Visualización de estadísticas
@@ -129,6 +130,7 @@ python main.py
 ```
 
 **Opciones disponibles:**
+
 - Selección de formato de almacenamiento
 - Operaciones CRUD completas
 - Modo batch para importación masiva
@@ -149,6 +151,7 @@ book_id = manager.create_book(book)
 books = manager.get_all_books()
 manager.update_book(book_id, {'title': '1984 - Edición Especial'})
 ```
+
 ## 📊 Testing y Calidad del Código
 
 ### Suite de Pruebas
@@ -166,12 +169,12 @@ python test_delete.py     # Tests de integridad
 
 ### Cobertura de Pruebas
 
-| Módulo | Cobertura | Tests |
-|--------|-----------|-------|
-| **Models** | 100% | 25 tests |
-| **Data Managers** | 95% | 45 tests |
-| **Business Logic** | 90% | 30 tests |
-| **GUI Components** | 85% | 20 tests |
+| Módulo             | Cobertura | Tests    |
+| ------------------ | --------- | -------- |
+| **Models**         | 100%      | 25 tests |
+| **Data Managers**  | 95%       | 45 tests |
+| **Business Logic** | 90%       | 30 tests |
+| **GUI Components** | 85%       | 20 tests |
 
 ### Validaciones Implementadas
 
@@ -212,12 +215,12 @@ biblioteca_personal/
 
 ### Benchmarks de Rendimiento
 
-| Operación | SQLite | JSON | XML | CSV | TXT |
-|-----------|--------|------|-----|-----|-----|
-| **Lectura 1K registros** | 15ms | 45ms | 75ms | 35ms | 25ms |
-| **Escritura 1K registros** | 120ms | 65ms | 95ms | 55ms | 40ms |
-| **Búsqueda indexada** | 2ms | 15ms | 25ms | 12ms | 18ms |
-| **Memoria utilizada** | 8MB | 12MB | 18MB | 10MB | 6MB |
+| Operación                  | SQLite | JSON | XML  | CSV  | TXT  |
+| -------------------------- | ------ | ---- | ---- | ---- | ---- |
+| **Lectura 1K registros**   | 15ms   | 45ms | 75ms | 35ms | 25ms |
+| **Escritura 1K registros** | 120ms  | 65ms | 95ms | 55ms | 40ms |
+| **Búsqueda indexada**      | 2ms    | 15ms | 25ms | 12ms | 18ms |
+| **Memoria utilizada**      | 8MB    | 12MB | 18MB | 10MB | 6MB  |
 
 ### Optimizaciones Implementadas
 
@@ -252,7 +255,7 @@ class MongoDataManager(DataManager):
     def create_book(self, book: Book) -> str:
         # Implementación MongoDB
         pass
-        
+
 # Registrar en el factory
 DataManagerFactory.register('mongo', MongoDataManager)
 ```
@@ -260,24 +263,28 @@ DataManagerFactory.register('mongo', MongoDataManager)
 ## 📈 Roadmap y Evolución
 
 ### Versión Actual (1.0)
+
 - ✅ Funcionalidad CRUD completa
-- ✅ 5 formatos de almacenamiento  
+- ✅ 5 formatos de almacenamiento
 - ✅ GUI tkinter moderna
 - ✅ Sistema de logging robusto
 
 ### Próximas Versiones
 
 #### v1.1 - Mejoras de Performance
+
 - 🔄 Migración a SQLAlchemy ORM
-- 📊 Dashboard con gráficos en tiempo real  
+- 📊 Dashboard con gráficos en tiempo real
 - 🔍 Búsqueda full-text con Elasticsearch
 
 #### v1.2 - Conectividad
+
 - 🌐 API REST completa con FastAPI
 - 📱 Frontend web responsive (React)
 - ☁️ Integración cloud (AWS S3, GCP)
 
 #### v2.0 - Enterprise
+
 - 🏢 Multi-tenancy y RBAC
 - 📧 Sistema de notificaciones
 - 📊 BI y analytics avanzados
@@ -306,14 +313,15 @@ Este proyecto está licenciado bajo la Licencia MIT - ver el archivo [LICENSE](L
 
 ## 👨‍💻 Autor
 
-**Luis** - *Desarrollo Full-Stack* 
+**Luis** - _Desarrollo Full-Stack_
+
 - GitHub: [@luisrocedev](https://github.com/luisrocedev)
 - LinkedIn: [Luis](https://linkedin.com/in/luisrocedev)
 - Email: luis@example.com
 
 ## 🙏 Agradecimientos
 
-- **DAM2 - Acceso a Datos** por el framework educativo
+- **Acceso a Datos** por el framework educativo
 - **Python Community** por las excelentes librerías
 - **Open Source Contributors** que inspiran este proyecto
 
@@ -327,7 +335,7 @@ Este proyecto está licenciado bajo la Licencia MIT - ver el archivo [LICENSE](L
 [![GitHub issues](https://img.shields.io/github/issues/luisrocedev/biblioteca-personal-dam2.svg)](https://github.com/luisrocedev/biblioteca-personal-dam2/issues)
 [![GitHub license](https://img.shields.io/github/license/luisrocedev/biblioteca-personal-dam2.svg)](https://github.com/luisrocedev/biblioteca-personal-dam2/blob/main/LICENSE)
 
-*Desarrollado con ❤️ para la comunidad educativa DAM*
+_Desarrollado con ❤️ para la comunidad educativa DAM_
 
 </div>
 
@@ -379,4 +387,4 @@ Este proyecto es para fines educativos y de demostración.
 
 ## Autor
 
-Proyecto desarrollado como parte del curso de Acceso a Datos - DAM2
+Proyecto desarrollado como parte del curso de Acceso a Datos
