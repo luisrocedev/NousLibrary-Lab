@@ -123,15 +123,16 @@ class LoanService:
         if loan.status != "active":
             raise ValueError(f"Préstamo ya devuelto: {loan_id}")
 
-        # Procesar devolución
+        # Calcular penalizaciones ANTES de cambiar el estado
         return_date = return_date or datetime.now()
-        loan.return_book(return_date)
-
-        # Calcular penalizaciones
         fine = 0.0
-        if loan.is_overdue:
-            days_overdue = loan.days_overdue
-            fine = days_overdue * self.config["fine_per_day"]
+        days_late = 0
+        if loan.status == "active" and return_date > loan.due_date:
+            days_late = (return_date - loan.due_date).days
+            fine = days_late * self.config["fine_per_day"]
+
+        # Procesar devolución (cambia status a 'returned')
+        loan.return_book(return_date)
 
         # Guardar cambios
         loan_repo.save(loan)
@@ -146,7 +147,7 @@ class LoanService:
         return {
             "loan_id": loan_id,
             "return_date": return_date.isoformat(),
-            "days_overdue": max(0, loan.days_overdue),
+            "days_overdue": days_late,
             "fine_amount": fine,
             "status": "returned"
         }

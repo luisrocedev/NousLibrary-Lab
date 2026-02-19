@@ -44,6 +44,10 @@ class DataManager(ABC):
         """Buscar entidades por criterios."""
         pass
 
+    def exists(self, entity_id: str) -> bool:
+        """Verificar si una entidad existe."""
+        return self.load(entity_id) is not None
+
 
 class DataManagerFactory:
     """Fábrica para crear gestores de datos."""

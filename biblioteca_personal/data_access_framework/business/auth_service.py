@@ -7,6 +7,8 @@ Autor: DAM2526
 """
 
 import hashlib
+import hmac
+import os
 from datetime import datetime
 from typing import Optional, Dict, Any
 
@@ -279,12 +281,23 @@ class AuthService:
         return self.user_repo.save(user)
 
     def _hash_password(self, password: str) -> str:
-        """Hashear contraseña usando SHA-256."""
-        return hashlib.sha256(password.encode()).hexdigest()
+        """Hashear contraseña usando HMAC-SHA256 con salt."""
+        salt = os.urandom(16).hex()
+        hash_value = hmac.new(
+            salt.encode(), password.encode(), hashlib.sha256
+        ).hexdigest()
+        return f"{salt}${hash_value}"
 
     def _verify_password(self, password: str, hashed: str) -> bool:
-        """Verificar contraseña contra hash."""
-        return self._hash_password(password) == hashed
+        """Verificar contraseña contra hash HMAC-SHA256."""
+        if '$' not in hashed:
+            # Compatibilidad con hashes SHA-256 antiguos sin salt
+            return hashed == hashlib.sha256(password.encode()).hexdigest()
+        salt, stored_hash = hashed.split('$', 1)
+        computed = hmac.new(
+            salt.encode(), password.encode(), hashlib.sha256
+        ).hexdigest()
+        return hmac.compare_digest(computed, stored_hash)
 
     def get_user_by_email(self, email: str) -> Optional[User]:
         """

@@ -133,7 +133,7 @@ class ProgressLogger:
             eta = ""
 
         print(f"\r{self.description}: {self.processed}/{self.total_items} "
-              ".1f"
+              f"({percentage:.1f}%) "
               f"{eta}", end="", flush=True)
 
         if self.processed >= self.total_items:

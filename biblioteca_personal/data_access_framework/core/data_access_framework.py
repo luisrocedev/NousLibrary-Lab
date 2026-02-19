@@ -115,7 +115,7 @@ class DataAccessFramework:
                 if entity_name in self.config.entities:
                     # Intentar cargar para verificar que existe la estructura
                     try:
-                        self.entity_manager.load_all(entity_class)
+                        self.entity_manager.get_repository(entity_class).load_all()
                     except Exception:
                         # Si falla, la estructura se creará en la primera operación
                         pass
@@ -214,10 +214,15 @@ class DataAccessFramework:
         if not self.config.ui_enabled:
             raise RuntimeError("UI no habilitada en configuración")
 
-        from ..ui.modern_app import ModernApp
-
-        app = ModernApp(self)
-        app.run()
+        try:
+            from ..ui.modern_app import ModernApp
+            app = ModernApp(self)
+            app.run()
+        except ImportError:
+            # Fallback a la GUI principal si ModernApp no existe
+            from gui_app import BibliotecaApp
+            app = BibliotecaApp()
+            app.run()
 
     def migrate_data(self, from_format: str, to_format: str):
         """

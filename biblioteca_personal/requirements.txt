@@ -1,47 +1,20 @@
-# Sistema de Gestión de Biblioteca Personal
-# Requisitos de Python para el proyecto
+# ═════════════════════════════════════════════════════════════
+#  NousLibrary-Lab - Dependencias del proyecto
+# ═════════════════════════════════════════════════════════════
 
-# Librerías estándar (incluidas en Python)
-# - dataclasses
-# - datetime
-# - json
-# - csv
-# - xml.etree.ElementTree
-# - sqlite3
-# - logging
-# - pathlib
-# - typing
-# - abc
-# - os
+# Librerías estándar utilizadas (incluidas en Python 3.10+):
+# dataclasses, datetime, json, csv, xml.etree.ElementTree,
+# sqlite3, logging, pathlib, typing, abc, os, tkinter, hashlib, hmac
 
-# Librerías de terceros necesarias
+# ──── API REST ────
+Flask>=3.0.0
+Flask-CORS>=4.0.0
 
-# SQLAlchemy para ORM y manejo de bases de datos relacionales
-SQLAlchemy==2.0.23
+# ──── Autenticación JWT ────
+PyJWT>=2.8.0
 
-# PyMySQL para conexión a MySQL/MariaDB
-PyMySQL==1.1.0
+# ──── Validación de datos ────
+jsonschema>=4.19.0
 
-# psycopg2 para conexión a PostgreSQL
-psycopg2-binary==2.9.9
-
-# pymongo para conexión a MongoDB
-pymongo==4.6.1
-
-# pandas para manipulación avanzada de datos (opcional pero recomendado)
-pandas==2.1.4
-
-# openpyxl para exportación a Excel (opcional)
-openpyxl==3.1.2
-
-# jsonschema para validación de datos JSON (opcional pero recomendado)
-jsonschema==4.19.2
-
-# requests para posibles integraciones web (opcional)
-requests==2.31.0
-
-# beautifulsoup4 para parsing HTML si es necesario (opcional)
-beautifulsoup4==4.12.2
-
-# lxml para parsing XML avanzado (opcional pero recomendado para XML complejo)
-lxml==4.9.3
+# ──── Parsing XML avanzado (opcional) ────
+lxml>=4.9.0

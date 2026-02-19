@@ -26,12 +26,14 @@ class CSVDataManager(DataManager):
         # Obtener fieldnames de la clase
         if hasattr(entity_class, 'CSV_FIELDNAMES'):
             self.fieldnames = entity_class.CSV_FIELDNAMES
+        elif hasattr(entity_class, '__dataclass_fields__'):
+            self.fieldnames = list(entity_class.__dataclass_fields__.keys())
         else:
             # Intentar obtener de una instancia de ejemplo
             try:
                 example = entity_class()
                 self.fieldnames = list(example.to_dict().keys())
-            except:
+            except Exception:
                 self.fieldnames = ['id']  # fallback mínimo
 
     def _write_all(self, entities: List) -> bool:

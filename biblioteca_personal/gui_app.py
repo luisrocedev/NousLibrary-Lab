@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Interfaz gráfica moderna para el Sistema de Gestión de Biblioteca Personal
-Utiliza ttkbootstrap para un diseño profesional con temas modernos.
+Utiliza tkinter/ttk para un diseño profesional con pestañas.
 
 Autor: DAM2526
 """
@@ -18,9 +18,7 @@ from tkinter.constants import END
 from tkinter.scrolledtext import ScrolledText
 from datetime import datetime
 
-from models import Book, Author, User
-from data_managers import DataManagerFactory
-from data_access_framework import create_framework, Book as FrameworkBook, Author as FrameworkAuthor, User as FrameworkUser
+from data_access_framework import create_framework, Book, Author, User
 from utils.logger import Logger
 
 # ════════════════════════════════════════════════════════════════
@@ -54,13 +52,13 @@ class BibliotecaApp:
 
     def __init__(self):
         self.logger = Logger()
-        self.format_type = 'sqlite'  # formato por defecto del framework
+        self.format_type = 'json'  # formato por defecto
 
         # Inicializar framework
         self.framework = create_framework(database_format=self.format_type)
-        self.book_repo = self.framework.entity_manager.get_repository(FrameworkBook)
-        self.author_repo = self.framework.entity_manager.get_repository(FrameworkAuthor)
-        self.user_repo = self.framework.entity_manager.get_repository(FrameworkUser)
+        self.book_repo = self.framework.entity_manager.get_repository(Book)
+        self.author_repo = self.framework.entity_manager.get_repository(Author)
+        self.user_repo = self.framework.entity_manager.get_repository(User)
 
         # Crear ventana principal
         self.root = tk.Tk()
@@ -81,30 +79,26 @@ class BibliotecaApp:
 
         self.logger.info("Interfaz gráfica iniciada")
 
-    # ─────────────── Gestores de datos ───────────────
-    def _init_managers(self):
-        self.book_mgr = DataManagerFactory.create_book_manager(self.format_type, DATA_PATH)
-        self.author_mgr = DataManagerFactory.create_author_manager(self.format_type, DATA_PATH)
-        self.user_mgr = DataManagerFactory.create_user_manager(self.format_type, DATA_PATH)
+    # ─────────────── Cambio de formato ───────────────
 
     def _change_format(self, *_):
         label = self.format_var.get()
-        new_fmt = FORMATOS.get(label, 'sqlite')
+        new_fmt = FORMATOS.get(label, 'json')
         if new_fmt != self.format_type:
             old_fmt = self.format_type
             self.format_type = new_fmt
 
             # Migrar datos al nuevo formato
             try:
-                self.framework.entity_manager.migrate_entity(FrameworkBook, old_fmt, new_fmt)
-                self.framework.entity_manager.migrate_entity(FrameworkAuthor, old_fmt, new_fmt)
-                self.framework.entity_manager.migrate_entity(FrameworkUser, old_fmt, new_fmt)
+                self.framework.entity_manager.migrate_entity(Book, old_fmt, new_fmt)
+                self.framework.entity_manager.migrate_entity(Author, old_fmt, new_fmt)
+                self.framework.entity_manager.migrate_entity(User, old_fmt, new_fmt)
 
                 # Recrear framework con nuevo formato
                 self.framework = create_framework(database_format=self.format_type)
-                self.book_repo = self.framework.entity_manager.get_repository(FrameworkBook)
-                self.author_repo = self.framework.entity_manager.get_repository(FrameworkAuthor)
-                self.user_repo = self.framework.entity_manager.get_repository(FrameworkUser)
+                self.book_repo = self.framework.entity_manager.get_repository(Book)
+                self.author_repo = self.framework.entity_manager.get_repository(Author)
+                self.user_repo = self.framework.entity_manager.get_repository(User)
 
                 self._refresh_all()
                 self.status_var.set(f"Formato cambiado a {new_fmt.upper()}")
@@ -325,10 +319,7 @@ class BibliotecaApp:
         self.book_update_btn.config(state="normal")
         self.book_delete_btn.config(state="normal")
 
-        book = self.book_mgr.load(book_id)
-        if not book:
-            return
-        book = self.book_mgr.load(book_id)
+        book = self.book_repo.load(book_id)
         if not book:
             return
 
@@ -342,7 +333,7 @@ class BibliotecaApp:
         self.book_lang_var.set(book.language)
 
         # Buscar nombre del autor
-        author = self.author_mgr.load(book.author_id)
+        author = self.author_repo.load(book.author_id)
         if author:
             self.book_author_var.set(f"{author.name} ({author.id[:8]})")
 
@@ -428,27 +419,20 @@ class BibliotecaApp:
             messagebox.showerror("Error al actualizar", "Error")
 
     def _delete_book(self):
-        print("DEBUG: _delete_book called!")
-        print(f"DEBUG: selected_book_id = {self.selected_book_id}")
         if not self.selected_book_id:
-            print("DEBUG: No book selected")
             messagebox.showwarning("Seleccione un libro", "Debe seleccionar un libro para eliminar")
             return
 
-        print("DEBUG: Showing book confirmation dialog")
         if messagebox.askyesno("¿Eliminar el libro seleccionado?", "Confirmar"):
-            print("DEBUG: User confirmed deletion")
             if self.book_repo.delete(self.selected_book_id):
-                print("DEBUG: Book deleted successfully")
                 self._refresh_books()
                 self._clear_book_form()
                 self._update_author_combos()
                 self.status_var.set("Libro eliminado")
                 self.logger.log_operation("DELETE", "Book", self.selected_book_id, True)
             else:
-                print("DEBUG: Failed to delete book")
                 messagebox.showerror("Error al eliminar", "No se pudo eliminar el libro")
-                self.logger.log_operation("DELETE", "Book", self.selected_book_id, True)
+                self.logger.log_operation("DELETE", "Book", self.selected_book_id, False)
 
     def _clear_book_form(self):
         for var in self.book_vars.values():
@@ -464,13 +448,13 @@ class BibliotecaApp:
         """Extrae el ID del autor desde el texto del combo '  Nombre (id_corto)'"""
         if '(' in text and text.endswith(')'):
             short_id = text.split('(')[-1].rstrip(')')
-            for a in self.author_mgr.load_all():
+            for a in self.author_repo.load_all():
                 if a.id.startswith(short_id):
                     return a.id
         return ""
 
     def _update_author_combos(self):
-        authors = self.author_mgr.load_all()
+        authors = self.author_repo.load_all()
         values = [f"{a.name} ({a.id[:8]})" for a in authors]
         self.book_author_combo.configure(values=values)
 
@@ -570,9 +554,7 @@ class BibliotecaApp:
             ))
 
     def _on_author_select(self, event):
-        print("DEBUG: _on_author_select called")
         sel = self.author_tree.selection()
-        print(f"DEBUG: author selection = {sel}")
         if not sel:
             self.selected_author_id = None
             self.author_update_btn.config(state="disabled")
@@ -580,12 +562,10 @@ class BibliotecaApp:
             return
 
         self.selected_author_id = sel[0]
-        print(f"DEBUG: selected_author_id set to {self.selected_author_id}")
         self.author_update_btn.config(state="normal")
         self.author_delete_btn.config(state="normal")
-        print("DEBUG: Author buttons enabled")
 
-        author = self.author_mgr.load(self.selected_author_id)
+        author = self.author_repo.load(self.selected_author_id)
         if author:
             self.author_vars['author_name'].set(author.name)
             self.author_vars['author_nationality'].set(author.nationality)
@@ -635,34 +615,26 @@ class BibliotecaApp:
             self.status_var.set(f"Autor '{name}' actualizado")
 
     def _delete_author(self):
-        print("DEBUG: _delete_author called!")
-        print(f"DEBUG: selected_author_id = {self.selected_author_id}")
         if not self.selected_author_id:
-            print("DEBUG: No author selected")
             messagebox.showwarning("Seleccione un autor", "Debe seleccionar un autor para eliminar")
             return
 
         # Verificar si el autor tiene libros asociados
         author_books = [b for b in self.book_repo.load_all() if b.author_id == self.selected_author_id]
-        print(f"DEBUG: Found {len(author_books)} books for author")
         if author_books:
             messagebox.showerror("No se puede eliminar",
                                f"El autor tiene {len(author_books)} libro(s) asociado(s). "
                                "Elimine primero los libros del autor.")
             return
 
-        print("DEBUG: Showing confirmation dialog")
         if messagebox.askyesno("¿Eliminar el autor seleccionado?", "Confirmar"):
-            print("DEBUG: User confirmed deletion")
             if self.author_repo.delete(self.selected_author_id):
-                print("DEBUG: Author deleted successfully")
                 self._refresh_authors()
                 self._clear_author_form()
                 self._update_author_combos()
                 self.status_var.set("Autor eliminado")
                 self.logger.log_operation("DELETE", "Author", self.selected_author_id, True)
             else:
-                print("DEBUG: Failed to delete author")
                 messagebox.showerror("Error al eliminar", "No se pudo eliminar el autor")
 
     def _clear_author_form(self):
@@ -777,7 +749,7 @@ class BibliotecaApp:
         self.user_update_btn.config(state="normal")
         self.user_delete_btn.config(state="normal")
 
-        user = self.user_mgr.load(self.selected_user_id)
+        user = self.user_repo.load(self.selected_user_id)
         if user:
             self.user_vars['user_name'].set(user.name)
             self.user_vars['user_email'].set(user.email)
@@ -798,7 +770,7 @@ class BibliotecaApp:
                 phone=self.user_vars['user_phone'].get().strip(),
                 address=self.user_vars['user_address'].get().strip()
             )
-            if self.user_mgr.save(user):
+            if self.user_repo.save(user):
                 self._refresh_users()
                 self._clear_user_form()
                 self.status_var.set(f"Usuario '{name}' agregado")
@@ -810,7 +782,7 @@ class BibliotecaApp:
             messagebox.showwarning("Seleccione un usuario", "Debe seleccionar un usuario para actualizar")
             return
 
-        user = self.user_mgr.load(self.selected_user_id)
+        user = self.user_repo.load(self.selected_user_id)
         if not user:
             return
 
@@ -825,29 +797,22 @@ class BibliotecaApp:
         user.phone = self.user_vars['user_phone'].get().strip()
         user.address = self.user_vars['user_address'].get().strip()
 
-        if self.user_mgr.save(user):
+        if self.user_repo.save(user):
             self._refresh_users()
             self.status_var.set(f"Usuario '{name}' actualizado")
 
     def _delete_user(self):
-        print("DEBUG: _delete_user called!")
-        print(f"DEBUG: selected_user_id = {self.selected_user_id}")
         if not self.selected_user_id:
-            print("DEBUG: No user selected")
             messagebox.showwarning("Seleccione un usuario", "Debe seleccionar un usuario para eliminar")
             return
 
-        print("DEBUG: Showing user confirmation dialog")
         if messagebox.askyesno("¿Eliminar el usuario seleccionado?", "Confirmar"):
-            print("DEBUG: User confirmed deletion")
-            if self.user_mgr.delete(self.selected_user_id):
-                print("DEBUG: User deleted successfully")
+            if self.user_repo.delete(self.selected_user_id):
                 self._refresh_users()
                 self._clear_user_form()
                 self.status_var.set("Usuario eliminado")
                 self.logger.log_operation("DELETE", "User", self.selected_user_id, True)
             else:
-                print("DEBUG: Failed to delete user")
                 messagebox.showerror("Error al eliminar", "No se pudo eliminar el usuario")
 
     def _clear_user_form(self):
@@ -925,9 +890,9 @@ class BibliotecaApp:
         self.author_stats_tree.pack(fill=tk.BOTH, expand=True)
 
     def _refresh_stats(self):
-        books = self.book_mgr.load_all()
-        authors = self.author_mgr.load_all()
-        users = self.user_mgr.load_all()
+        books = self.book_repo.load_all()
+        authors = self.author_repo.load_all()
+        users = self.user_repo.load_all()
 
         self.stat_cards['total_books'].set(str(len(books)))
         self.stat_cards['total_authors'].set(str(len(authors)))

@@ -8,8 +8,11 @@ Autor: DAM2526
 
 from dataclasses import dataclass, field
 from typing import Optional, List, Dict, Any
-from datetime import datetime
+from datetime import datetime, timedelta
 import uuid
+import hashlib
+import hmac
+import os
 
 
 @dataclass
@@ -28,23 +31,28 @@ class BaseEntity:
     def to_dict(self) -> Dict[str, Any]:
         """Convertir entidad a diccionario."""
         result = {}
-        for field_name, field_info in self.__dataclass_fields__.items():
+        for field_name in self.__dataclass_fields__:
             value = getattr(self, field_name)
             if isinstance(value, datetime):
                 result[field_name] = value.isoformat()
+            elif isinstance(value, list):
+                result[field_name] = list(value)
             else:
                 result[field_name] = value
         return result
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'BaseEntity':
-        """Crear entidad desde diccionario."""
+        """Crear entidad desde diccionario, filtrando campos desconocidos."""
+        valid_fields = set(cls.__dataclass_fields__.keys())
+        filtered = {k: v for k, v in data.items() if k in valid_fields}
+
         # Convertir strings de fecha a objetos datetime
-        if 'created_at' in data and isinstance(data['created_at'], str):
-            data['created_at'] = datetime.fromisoformat(data['created_at'])
-        if 'updated_at' in data and isinstance(data['updated_at'], str):
-            data['updated_at'] = datetime.fromisoformat(data['updated_at'])
-        return cls(**data)
+        if 'created_at' in filtered and isinstance(filtered['created_at'], str):
+            filtered['created_at'] = datetime.fromisoformat(filtered['created_at'])
+        if 'updated_at' in filtered and isinstance(filtered['updated_at'], str):
+            filtered['updated_at'] = datetime.fromisoformat(filtered['updated_at'])
+        return cls(**filtered)
 
 
 @dataclass
@@ -55,8 +63,10 @@ class Book(BaseEntity):
     isbn: str = ""
     genre: str = ""
     language: str = "Español"
-    year: int = datetime.now().year
-    pages: int = 0
+    publication_year: Optional[int] = None
+    pages: Optional[int] = None
+    description: str = ""
+    publisher: str = ""
     category_id: Optional[str] = None
     available: bool = True
 
@@ -72,10 +82,11 @@ class Book(BaseEntity):
         if self.isbn and not self._validate_isbn(self.isbn):
             raise ValueError("ISBN inválido")
 
-        if self.year < 1000 or self.year > datetime.now().year + 1:
-            raise ValueError("Año de publicación inválido")
+        if self.publication_year is not None:
+            if self.publication_year < 1000 or self.publication_year > datetime.now().year + 1:
+                raise ValueError("Año de publicación inválido")
 
-        if self.pages < 0:
+        if self.pages is not None and self.pages < 0:
             raise ValueError("Número de páginas no puede ser negativo")
 
     def _validate_isbn(self, isbn: str) -> bool:
@@ -83,7 +94,6 @@ class Book(BaseEntity):
         isbn = isbn.replace("-", "").replace(" ", "")
 
         if len(isbn) == 10:
-            # ISBN-10
             try:
                 total = sum(int(isbn[i]) * (10 - i) for i in range(9))
                 check_digit = (11 - (total % 11)) % 11
@@ -92,7 +102,6 @@ class Book(BaseEntity):
                 return False
 
         elif len(isbn) == 13:
-            # ISBN-13
             try:
                 total = sum(int(isbn[i]) * (1 if i % 2 == 0 else 3) for i in range(12))
                 check_digit = (10 - (total % 10)) % 10
@@ -123,16 +132,14 @@ class Author(BaseEntity):
         if not self.name.strip():
             raise ValueError("El nombre es obligatorio")
 
-        if not self.last_name.strip():
-            raise ValueError("Los apellidos son obligatorios")
-
         if self.birth_date and self.birth_date > datetime.now():
             raise ValueError("La fecha de nacimiento no puede ser futura")
 
     @property
     def full_name(self) -> str:
         """Nombre completo del autor."""
-        return f"{self.name} {self.last_name}"
+        parts = [self.name, self.last_name]
+        return " ".join(p for p in parts if p.strip())
 
 
 @dataclass
@@ -141,9 +148,12 @@ class User(BaseEntity):
     name: str = ""
     last_name: str = ""
     email: str = ""
+    phone: str = ""
+    address: str = ""
     password_hash: str = ""
     role: str = "user"  # user, admin, librarian
     active: bool = True
+    borrowed_books: List[str] = field(default_factory=list)
 
     def __post_init__(self):
         super().__post_init__()
@@ -154,10 +164,7 @@ class User(BaseEntity):
         if not self.name.strip():
             raise ValueError("El nombre es obligatorio")
 
-        if not self.last_name.strip():
-            raise ValueError("Los apellidos son obligatorios")
-
-        if not self._validate_email(self.email):
+        if self.email and not self._validate_email(self.email):
             raise ValueError("Email inválido")
 
         if self.role not in ["user", "admin", "librarian"]:
@@ -172,17 +179,27 @@ class User(BaseEntity):
     @property
     def full_name(self) -> str:
         """Nombre completo del usuario."""
-        return f"{self.name} {self.last_name}"
+        parts = [self.name, self.last_name]
+        return " ".join(p for p in parts if p.strip())
 
     def set_password(self, password: str):
-        """Establecer contraseña hasheada."""
-        import hashlib
-        self.password_hash = hashlib.sha256(password.encode()).hexdigest()
+        """Establecer contraseña hasheada con HMAC-SHA256 y salt."""
+        salt = os.urandom(16).hex()
+        hash_value = hmac.new(
+            salt.encode(), password.encode(), hashlib.sha256
+        ).hexdigest()
+        self.password_hash = f"{salt}${hash_value}"
 
     def check_password(self, password: str) -> bool:
-        """Verificar contraseña."""
-        import hashlib
-        return self.password_hash == hashlib.sha256(password.encode()).hexdigest()
+        """Verificar contraseña contra hash HMAC-SHA256."""
+        if '$' not in self.password_hash:
+            # Compatibilidad con hashes SHA-256 antiguos sin salt
+            return self.password_hash == hashlib.sha256(password.encode()).hexdigest()
+        salt, stored_hash = self.password_hash.split('$', 1)
+        computed = hmac.new(
+            salt.encode(), password.encode(), hashlib.sha256
+        ).hexdigest()
+        return hmac.compare_digest(computed, stored_hash)
 
 
 @dataclass
@@ -208,7 +225,7 @@ class Loan(BaseEntity):
     book_id: str = ""
     user_id: str = ""
     loan_date: datetime = field(default_factory=datetime.now)
-    due_date: datetime = field(default_factory=lambda: datetime.now().replace(day=datetime.now().day + 14))
+    due_date: datetime = field(default_factory=lambda: datetime.now() + timedelta(days=14))
     return_date: Optional[datetime] = None
     status: str = "active"  # active, returned, overdue
     notes: str = ""
@@ -248,7 +265,9 @@ class Loan(BaseEntity):
     @property
     def days_overdue(self) -> int:
         """Días de retraso."""
-        if not self.is_overdue:
+        if self.status != "active":
+            return 0
+        if datetime.now() <= self.due_date:
             return 0
         return (datetime.now() - self.due_date).days
 
