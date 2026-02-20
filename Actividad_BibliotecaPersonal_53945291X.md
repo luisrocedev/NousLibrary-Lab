@@ -814,7 +814,3 @@ Este proyecto implementa un **sistema completo de gestión de biblioteca** con l
 ### 4.4 Reflexión final
 
 El proyecto demuestra que el acceso a datos no se limita a un único formato o tecnología; la clave es diseñar abstracciones correctas que encapsulen las diferencias técnicas detrás de una interfaz común. El patrón Factory + Repository garantiza que la lógica de negocio permanezca desacoplada del mecanismo de almacenamiento, permitiendo escalar el proyecto a nuevos formatos con mínimo esfuerzo. Además, la combinación de pruebas automatizadas y una interfaz gráfica completa proporciona confianza tanto al desarrollador como al usuario final de que el sistema funciona correctamente en todos sus modos.
-
----
-
-_Documento generado como parte del proyecto final de Acceso a Datos — DAM2 2025/2026_
